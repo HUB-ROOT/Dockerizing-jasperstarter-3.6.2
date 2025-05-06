@@ -1,0 +1,594 @@
+~~ Copyright 2012 Cenote GmbH.
+~~
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+
+  ---
+  Verwendung
+  ---
+
+Verwendung
+
+%{toc|fromDepth=2}
+
+
+* Installation
+
+
+** Windows Benutzer
+
+  Entpacken Sie das Distributionsarchiv in ein Verzeichnis Ihrer Wahl, 
+  beispielsweise:
+
++---
+C:\App\jasperstarter
++---
+
+  Fügen Sie das Verzeichnis
+
++---
+C:\App\jasperstarter\bin
++---
+
+  zu Ihrem Benutzer- oder Systemsuchpfad hinzu.
+
+  <<oder verwenden Sie einfach setup.exe>>
+
+
+** Linux Benutzer
+
+  Entpacken Sie das Distributionsarchiv in ein Verzeichnis Ihrer Wahl,
+  beispielsweise:
+
++---
+/opt/jasperstarter
++---
+
+  Fügen Sie das Verzeichnis
+
++---
+/opt/jasperstarter/bin
++---
+
+  zu Ihrem Benutzer- oder Systemsuchpfad hinzu.
+
+
+* JasperStarter aurufen
+
+  Falls Sie das bin Verzeichnis zum Suchpfad hinzugefügt haben, geben Sie
+  einfach folgendes ein
+
++---
+$ jasperstarter
++---
+
+  um das Programm aufzurufen.
+
+  Falls nicht, können Sie einen absoluten Pfad angeben. Unter Linux:
+
++---
+/opt/jasperstarter/bin/jasperstarter
++---
+
+  und unter Windows:
+
++---
+C:\App\jasperstarter\bin\jasperstarter.exe
++---
+
+  falls Sie dem Beispiel im Abschnitt Installation gefolgt sind.
+
+  Falls Sie Probleme mit der binären Datei oder dem Shell Script haben oder
+  spezielle Optionen an die Java VM übergeben wollen, können Sie das Programm
+  auch direkt starten:
+
++---
+$ java -jar /opt/jasperstarter/lib/jasperstarter.jar
++---
+
+  oder
+
++---
+$ java -cp /opt/jasperstarter/lib/jasperstarter.jar de.cenote.jasperstarter.App
++---
+
+
+* Konzepte
+
+
+** JasperReport Dateien
+
+  JasperReports kennt drei Arten von Dateien:
+
+  * Die Report-Definitionsdatei <<myreport.jrxml>>
+
+    Dies ist eine xml Datei, welche den Report definiert. Sie können Sie von 
+    Hand schreiben, aber üblicherweise werden Sie eines von den schönen GUI
+    Tools verwenden, um sie zu erzeugen.
+
+  * Die kompilierte Report Datei <<myreport.jasper>>
+
+    Diese Datei ist das Ergebnis, wenn Sie eine <.jrxml> Datei kompilieren.
+
+  * Die gefüllte Report Datei <<myreport.jrprint>>
+
+    Diese Datei resultiert aus einem aufgerufenen Report. Die Daten, welche über
+    die spezifizierte Datenquelle abgerufen werden, werden in den kompilierten
+    Report eingefügt und das Ergebnis kann als <.jrprint> Datei gespeichert
+    werden.
+
+
+** Stufen der Verarbeitung
+
+  Es gibt drei Stufen einen Report zu verarbeiten:
+
+    * <<kompilieren>> erzeugt eine <.jasper> Datei
+
+    * <<füllen>> kann optional in einer <.jrprint> Datei gespeichert werden
+
+    * <<anzeigen, drucken oder exportieren>> in ein oder mehrere der
+      unterstützten export Formate.
+
+  JasperStarter kann all diese Schritte in einem Aufruf durchführen.
+
+
+* JasperStarter Kommandos und Optionen
+
+  JasperStarter hat einige globale Optionen und Kommandos. Jedes Kommando kann
+  eigene Optionen haben.
+
+  Sie erhalten einen Überblick, wenn Sie jasperstarter mit <-h> aufrufen, was
+  Ihnen die globalen Optionen und die verfügbaren Kommandos anzeigt.
+
+%{snippet|file=src/site/snippets/help/jasperstarter.txt}
+
+  Jedes Kommando hat seine eigene Hilfe, welche Sie durch den Aufruf von 
+  <\<command\> -h> erhalten.
+
+
+** Das Kommando <compile> (<cp>)
+
+  Mit dem Kommando <compilep> können Sie einen einzelnen Report oder alle
+  Reports in einem Verzeichnis kompilieren.  <cp> ist ein Alias für <compile>.
+
+%{snippet|file=src/site/snippets/help/jasperstarter_compile.txt}
+
+
+** Das Kommando <process> (<pr>)
+
+  Das Kommando <<pr>> (process) wird benötigt, um einen einzelnen Report zu
+  verarbeiten. Damit kann kompilieren, anzeigen, drucken oder exportieren
+  gemeint sein. <pr> ist ein Alias für <process>.
+
+%{snippet|file=src/site/snippets/help/jasperstarter_process.txt}
+
+
+** Das Kommando <list_printers> (<printers>,<lpr>)
+
+  Das Kommando <list_printers> hat keine Optionen. Es listet alle
+  verfügbaren Drucker auf Ihrem System, welche Sie mit der Option <-N> des
+  Kommandos <process> verwenden können. <printers>, <lpr> sind Aliases für
+  <list_printers>.
+
+
+** Das Kommando <list_parameters> (<params>,<lpa>)
+
+  Das Kommando <list_parameters> listet alle benutzerdefinierten Parameter eines
+  angegebenen Reports auf. <params>, <lpa> sind Aliases für <list_parameters>.
+
+%{snippet|file=src/site/snippets/help/jasperstarter_list_parameters.txt}
+
+  Die Spalten haben die folgende Bedeutung:
+
+   * P/N - Prompt or no promt flag
+
+   * Parameter Name
+
+   * Parameter Type (Klassen Name)
+
+   * Optionale Beschreibung
+
+  Beispiel Ausgabe:
+
++---
+$ jasperstarter params myreport.jasper
+P background java.awt.Image   Background image
+P MyName     java.lang.String Title of some component
+P MyDate     java.util.Date
++---
+
+
+* Befehlsdateien
+
+  Jedes Kommando, jede Option und jedes Argument, welches JasperStarter
+  akzeptiert, kann auch in einer Datei gespeichert werden, die zusätzlich mit
+  dem <@> Zeichen zum Aufruf hinzugefügt werden kann.
+
+
+  Die Datei muss ein Kommando/Option/Argument je Zeile enthalten.
+
+
+  Beispiel Datei (db.conf):
+
++---
+-t
+mysql
+-H
+localhost
+-n
+mydb
+-u
+volker
++---
+
+  Beispiel Aufruf mit Befehlsdatei:
+
++---
+$ jasperstarter pr myreport -f view @db.conf
++---
+
+  <<Achtung! Die Kommando-Datei darf keine Leerzeilen und nur einen>>
+  <<Zeilenumbruch ohne Leerzeichen am Ende der Datei haben!>>
+
+
+* Reports Verarbeiten
+
+  Um einen Report zu verarbeiten, muss das Kommando <<pr>> angegeben werden,
+  welches die folgenden Optionen benötigt:
+
+    * <<<\<input\>>>> Eingabedatei (report Definition, kompilierter Report oder
+      gefüllter Report).
+
+    * <<<-f>>> eine Leerzeichen separierte Liste von Ausgabeformaten.
+
+        * <<view>> und <<print>> schließen sich gegenseitig aus, folglich wird
+          print ignoriert, wenn view angegeben wurde.
+
+    * <<<-t>>> einen Datenbanktyp, falls Ihr Report eine Datenbank-Verbindung
+      benötigt. Default Wert ist <<none>>.
+
+        * falls der Datenbanktyp nicht <<none>> ist, müssen die benötigten
+          Verbindungsparameter angegeben werden.
+
+  Alle anderen Angaben sind optional.
+
+  Für die Option <<<-o>>> (output) siehe Abschnitt "Datei Behandlung".
+
+  <<<\<input\>>>> ist nun einfach ein Argument. Die Reihenfolge von Optionen und
+  diesem Argument ist nicht von Bedeutung, allerdings kann ein Argument nicht
+  hinter einer Option platziert werden, die selbst eine unbestimmte Anzahl an
+  Argumenten erwartet. Diese Optionen sind:
+
+    * <-f> <-a> <-P> <-r>
+
+  Der folgende Aufruf wird <<nicht>> funktionieren:
+
++---
+$ jasperstarter pr -f view myreport.jasper
++---
+
+  Aber diese werden:
+
++---
+$ jasperstarter pr -f print pdf -d myreport.jasper
+$ jasperstarter pr -f view -t mysql myreport.jasper -H localhost -u myuser -n mydb
++---
+
+  Der einfachste Weg, Problemen mit Argumenten aus dem Weg zu gehen ist,
+  <<<\<input\>>>> immer an der ersten Stelle gleich nach dem Kommando zu
+  platzieren, so wie es in den folgenden Beispielen gezeigt wird.
+
+
+** Der Minimum Report ohne Datenbank
+
+  Die minimalen Optionen, welche benötigt werden, um einen Report ohne Datenbank
+  aufzurufen, sind:
+
++---
+$ jasperstarter pr myreport.jasper -f view
++---
+
+
+** Der Minimum Datenbank Report
+
+  Die minimalen Optionen, welche benötigt werden, um einen Report aufzurufen,
+  der eine Datenbankverbindung benötigt, sind:
+
++---
+$ jasperstarter pr myreport.jasper -f pdf -t mysql -H localhost -n mydb -u appuser
++---
+
+
+** Anzeigen, drucken oder exportieren eines zuvor gefüllten Reports
+
+  Sie können einen Report zu einem Zeitpunkt füllen und zu einem späteren
+  Zeitpunkt anzeigen, drucken oder exportieren.
+
+  Einen Report nur füllen:
+
++---
+$ jasperstarter pr myreport.jasper -f jrprint -t mysql -H localhost -n mydb -u appuser
++---
+
+  Einen zuvor gefüllten Report anzeigen:
+
++---
+$ jasperstarter pr myreport.jrprint -f view
++---
+
+
+** Reports mit einer CSV Datenquelle
+
+  Der CSV Datei Zeichensatz ist auf UTF-8 voreingestellt. Andere übliche
+  Zeichensätze sind cp1252 (Windows), ISO-8859-1 oder ISO-8859-15 (Linux).
+  Sie können den CSV Zeichensatz mit dem Parameter <<--csv-charset>> angeben.
+
+  Datensätze werden üblicherweise mit einem Zeilenumbruch getrennt, aber dies
+  muss nicht so sein. Das Datensatz-Trennzeichen ist auf den System
+  Zeilenumbruch voreingestellt, welcher abhängig von Ihrem Betriebssystem
+  unterschiedlich ist.
+  Wenn Sie CSV Dateien von einem anderen System verwenden, müssen Sie den
+  richtigen Zeilenumbruch mit dem Parameter <<--csv-record-del>> einstellen:
+
+   * Windows: <<\r\n>>
+
+   * Linux/Mac: <<\n>>
+
+  Felder können mit einem beliebigen Zeichen getrennt sein und optional in
+  Anführungszeichen eingeschlossen sein. Das Feldtrennzeichen ist auf <<,>>
+  voreingestellt.
+
+  Ein einfaches Beispiel:
+
++---
+$ jasperstarter pr csv.jrxml -f view -t csv --data-file data.csv --csv-first-row
++---
+
+  Ein etwas komplexeres Beispiel:
+
++---
+$ jasperstarter pr csv.jrxml -f view -t csv --data-file data.csv \
+--csv-columns Name,Phone --csv-record-del="\n" --csv-field-del="|" \
+--csv-charset=cp1252
++---
+
+
+** Reports mit Laufzeitparametern
+
+  Report-Parameter können aus verschiedenen Typen (Klassen) bestehen.
+  JasperStarter kann generell alle Klassen behandlen, die einen Konstruktor vom
+  Typ String haben. Zuätzlich hat JasperStarter spezielle Routinen für Klassen,
+  die keinen Konstruktor vom Typ String haben oder anderweitig besonders
+  behandelt werden müssen. Dies sind:
+
+   * date, image, locale
+
+  Mehrere Parameter können durch Leerzeichen getrennt werden. Ein Parameter hat
+  die folgende Form:
+
+   * \<<<name>>\><<=>>\<<<wert>>\>
+
+  Ersetzen Sie <<name>> mit dem Parameter-Namen ihres Reports. Parameter-Namen
+  unterscheiden sich durch <<Groß-Klein-Schreibung>> !
+
+  Der Parameter Typ <date> akzeptiert ein Datum im folgenden ISO Format:
+  <<YYYY-MM-DD>>
+
+  Der Parameter Typ <locale> kann entweder als ISO-639 Sprachcode mit zwei
+  Buchstaben oder einer Kombination aus dem ISO-639 Sprachcode und dem ISO-3166
+  zwei Buchstaben Ländercode verbunden mit einem Unterstrich bestehen.
+  Beispielsweise  <de> oder <de_DE>.
+
++---
+$ jasperstarter pr report.jasper -t mysql -u myuser -f pdf -H myhost -n mydb \
+-o report -p secret -P CustomerNo=10 StartFrom=2012-10-01
++---
+
+
+*** Der Bild (image) Parameter
+
+  Ein einfacher Weg, einen Report anzupassen, ist ein Logo oder ein Hintergrund
+  Bild als Parameter zu übergeben. Im folgenden Beispiel wird <background> als
+  Parameter-Name für das Bild verwendet:
+
+   * Erzeugen Sie einen Parameter in Ihrem Report und ändern Sie seine
+     Eigenschaften:
+
+      * <<Name>> = <background>
+
+      * <<Parameter Class>> = <java.awt.Image>
+
+   * Fügen Sie ein Bild in den Report ein und ändern Sie dessen Eigenschaften:
+
+      * <<Image Expression>> = <$P\{background\}>
+
+      * <<Expression Class>> = <java.awt.Image>
+
+   * kompilieren Sie ihren Report
+
+  Nun können Sie Ihren Report mit JasperStarter verarbeiten:
+
++---
+$ jasperstarter pr report.jasper -t mysql -u myuser -f pdf -H myhost -n mydb \
+-o report -p secret -P background=/tmp/mybackgroundimage.jpg
++---
+
+
+*** Parameter, die Leerzeichen enthalten, angeben
+
+  Besonders Windows Benutzer müssen möglicherweise Dateinamen angeben, die
+  Leerzeichen enthalten. Es gibt zwei Wege, wie man dies tun kann.
+  Setzten Sie nur den Wert in Anführungszeichen:
+
++---
+c:\jasperstarter pr report.jasper -t mysql -u myuser -f pdf -H myhost -n mydb \
+-o report -p secret -P background="C:\Temp Files\My Image.jpg" otherValue=1
++---
+
+  oder den ganzen Parameter:
+
++---
+c:\jasperstarter pr report.jasper -t mysql -u myuser -f pdf -H myhost -n mydb \
+-o report -p secret -P "background=C:\Temp Files\My Image.jpg" otherValue=1
++---
+
+
+*** Eingabeaufforderung für Parameter
+
+  JasperStarter kann mit der Option <<-a>> nach Report-Parametern fragen.
+
+  Jeder Parameter, der in einem Report definiert wurde, kann angezeigt werden.
+  Zur Eingabe werden aber nur diejenigen Parameter unterstüzt, dessen Typ
+  (Klasse) einen Konstruktor für eine Zeichenkette (String) hat oder für die
+  eine spezielle Routine vorhanden ist.
+
+  Mit den folgenden optionalen Argumenten können die angezeigten Parameter
+  gefiltert werden:
+
+   * <<a>> - alle Parameter (einschließlich System Parameter)
+
+   * <<ae>> - alle leeren Parameter (Parameter, für die kein Wert auf der
+              Befehlszeile angegeben wurde)
+
+   * <<p>> - alle benutzerdefinierten Parameter, die für die Abfrage markiert
+             wurden (dies ist die Voreinstellung falls <<-a>> kein Argument
+             mitgegeben wurde)
+
+   * <<pe>> - alle leeren benutzerdefinierten Parameter, die für die Abfrage
+              markiert wurden
+
+   * <<u>> - alle benutzerdefinierten Parameter
+
+   * <<ue>> - alle leeren benutzerdefinierten Parameter
+
+  In den folgenden Beispielen gehen wir von einem Nicht-Datenbank-Report aus,
+  in dem die folgenden zwei Parameter definiert sind:
+
+   * MyDate (java.util.Date)
+
+   * MyText (java.lang.String)
+
+  Der Benutzer wird nach beiden Parametern gefragt:
+
++---
+$ jasperstarter pr myreport.jasper -f view -a
++---
+
+  Der Benutzer wird nach beiden Parametern gefragt. Der Parameter <MyDate> ist
+  bereits gefüllt, kann aber vom Benutzer geändert werden:
+
++---
+$ jasperstarter pr myreport.jasper -f view -P MyDate=2013-01-30 -a
++---
+
+  Der Benutzer wird nur nach dem leeren Parameter <MyText> gefragt. Der
+  Parameter <MyDate> ist bereits gefüllt und wird nicht angezeigt:
+
++---
+$ jasperstarter pr myreport.jasper -f view -P MyDate=2013-01-30 -a pe
++---
+
+
+** Reports mit Ressourcen
+
+  Reports können verschiedene Ressourcen wie i18n Ressourcenbündel, Icons oder
+  Bilder verwenden.
+
+  Wenn eine Ressource im gleichen Verzeichnis wie der Report liegt, reicht es
+  einfach die Option <<-r>> ohne Argumente anzugeben:
+
++---
+$ jasperstarter pr myreport.jasper -f view -r
++---
+
+  Wenn eine Ressource in einem anderen Verzeichnis oder in einer jar Datei
+  enthalten ist, kann der Pfad als Argument mitgegeben werden:
+
++---
+$ jasperstarter pr myreport.jasper -f view -r myresources/
++---
+
+  oder
+
++---
+$ jasperstarter pr myreport.jasper -f view -r myresources.jar
++---
+
+
+* Datei Behandlung
+
+  Falls die Eingabedatei (Option <<<-i>>> ) nicht gefunden wurde, wird zuerst
+  <.jasper> angefügt. Falls die Datei immer noch nicht gefunden wurde, wird
+  <.jrxml> zum Dateinamen hinzugefügt. Dadurch ist es möglich, die Dateiendung
+  weg zu lassen.
+
+  Falls eine <.jrxml> verwendet wird, wird sie kompiliert und im Speicher weiter
+  verwendet, außer Sie geben die Option <<<-w>>> an, wodurch der kompilierte
+  Report als Datei in das <<Eingabe>> Verzeichnis geschrieben wird.
+
+  Eine <.jrprint> Datei kann als Eingabe verwendet werden, aber sie muss mit
+  vollem Dateinamen angegeben werden.
+
+  Falls die Ausgabe Datei oder das Verzeichnis ( option <<<-o>>> ) weggelassen
+  wurde, wird das übergeordnete Verzeichnis der Eingabedatei und der Basis
+  Dateiname der Eingabedatei als Ausgabe Dateiname verwendet:
+
++---
+(...) myreports/report1 -f pdf odt
++---
+
+  oder
+
++---
+(...) myreports/report1.jasper -f pdf odt
++---
+
+  oder
+
++---
+(...) myreports/report1.jrxml -f pdf odt
++---
+
+  resultieren in:
+
++---
+myreports/report1.odt
+myreports/report1.pdf
++---
+
+  Falls <output> ein existierendes Verzeichnis ist, wird der Basisname von
+  <input> als Dateiname in diesem Verzeichnis verwendet:
+
++---
+(...) myreports/report1.jasper -f pdf odt -o month01/
++---
+
+  resultiert in:
+
++---
+month01/report1.odt
+month01/report1.pdf
++---
+
+  Falls <output> KEIN existierendes Verzeichnis ist, wird der Basisname als
+  Dateiname verwendet:
+
++---
+(...) myreports/report1.jasper -f pdf odt -o month01/journal.xyz
++---
+
+  resultiert in:
+
++---
+month01/journal.xyz.odt
+month01/journal.xyz.pdf
++---

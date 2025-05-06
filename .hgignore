@@ -1,0 +1,9 @@
+syntax: glob
+nb*.xml
+jdbc/*.jar
+target
+src/site/markdown/index.md
+.metadata
+.classpath
+.project
+.settings

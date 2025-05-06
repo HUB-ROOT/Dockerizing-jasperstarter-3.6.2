@@ -1,0 +1,879 @@
+~~ Copyright 2012-2015 Cenote GmbH.
+~~
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+
+  ---
+  Usage
+  ---
+
+Usage
+
+%{toc|fromDepth=2}
+
+
+* Installation
+
+
+** Windows users
+
+  Unzip the distribution archive to a directory of your choice for example:
+
++---
+C:\App\jasperstarter
++---
+
+  Add the directory
+
++---
+C:\App\jasperstarter\bin
++---
+
+  to your user or system path variable
+
+  <<or simply use the setup.exe>>
+
+
+** Linux users
+
+  Extract the distribution archive to a directory of your choice for example:
+
++---
+/opt/jasperstarter
++---
+
+  Add the directory
+
++---
+/opt/jasperstarter/bin
++---
+
+  to your user or system path.
+  
+  
+*** ArchLinux
+  
+  For ArchLinux an AUR Package is available here: {{https://aur.archlinux.org/packages/jasperstarter}}
+  
+
+
+* Invoking JasperStarter
+
+  If you put the bin dir on the seach path, just type
+
++---
+$ jasperstarter
++---
+
+  to invoke the program.
+
+  If not, you can use an absolute path. On Linux:
+
++---
+/opt/jasperstarter/bin/jasperstarter
++---
+
+  and on Windows:
+
++---
+C:\App\jasperstarter\bin\jasperstarter.exe
++---
+
+  if you followed the example in the install section.
+
+  If you have any problem with the binary or shell script or you need to specify
+  some extra options to your java vm, you can invoke the program directly:
+
++---
+$ java -jar /opt/jasperstarter/lib/jasperstarter.jar
++---
+
+  or
+
++---
+$ java -cp /opt/jasperstarter/lib/jasperstarter.jar de.cenote.jasperstarter.App
++---
+
+
+* Concepts
+
+
+** JasperReport files
+
+  JasperReports know three types of files:
+
+  * The report definition file <<myreport.jrxml>>
+
+    This file is an xml file that defines the report, You can create it by hand
+    but usually you will use one of the nice available GUI tools.
+
+  * The compiled report file <<myreport.jasper>>
+
+    This file is the result of compiling an <.jrxml> file.
+
+  * The filled report file <<myreport.jrprint>>
+
+    This file is the result of running a report. The data which is retrieved
+    from the defined datasource is filled in the compiled report and can be
+    stored in a <.jrprint> file.
+
+
+** Stages of processing
+
+  There are three stages of processing a JasperReport:
+
+    * <<compiling>> results in a <.jasper> file
+
+    * <<filling>> can optionally be stored in a <.jrprint> file
+
+    * <<viewing, printing or exporting>> to one or more of the supported formats
+
+  JasperStarter can carry out all of them in one commanding call.
+
+
+* JasperStarter commands and options
+
+  JasperStarter has some global options and commands. Every command can have
+  it's own options.
+
+  You can get an overview if you invoke jasperstarter with <-h> which shows you
+  the global options and the available commands.
+
+%{snippet|file=src/site/snippets/help/jasperstarter.txt}
+
+  Every command has it's own help which can be invoked with <\<command\> -h>.
+
+
+** The command <compile> (<cp>)
+
+  The command <compile> is for compiling one report or all reports in a
+  directory. <cp> is an alias for <compile>.
+
+%{snippet|file=src/site/snippets/help/jasperstarter_compile.txt}
+
+
+** The command <process> (<pr>)
+
+  The command <process> is for processing a report. Thant means viewing,
+  printing or exporting. <pr> is an alias for <process>.
+
+%{snippet|file=src/site/snippets/help/jasperstarter_process.txt}
+
+
+** The command <list_printers> (<printers>,<lpr>)
+
+  The command <list_printers> has no options. It lists the available printers
+  on your system which can be used with optin <-N> of the command <process>.
+  <printers>, <lpr> are aliases for <list_printers>.
+
+
+** The command <list_parameters> (<params>,<lpa>)
+
+  The command <list_parameters> lists all user defined parameters of a given
+  report. <params>, <lpa> are aliases for <list_parameters>.
+
+%{snippet|file=src/site/snippets/help/jasperstarter_list_parameters.txt}
+
+  The columns have the following meaning:
+
+   * P/N - Prompt or no promt flag
+
+   * Parameter name
+
+   * Parameter type (class name)
+
+   * Optional description
+
+  Example output:
+
++---
+$ jasperstarter params myreport.jasper
+P background java.awt.Image   Background image
+P MyName     java.lang.String Title of some component
+P MyDate     java.util.Date
++---
+
+
+* Command files
+
+  Every command, option or argument JasperStarter accepts can be stored in a file
+  that can be additionally provided with the <@> sign.
+
+  The file should contain one command/option/argument per line.
+
+  
+
+  Example file (db.conf):
+
++---
+-t
+mysql
+-H
+localhost
+-n
+mydb
+-u
+volker
++---
+
+  Example invocation with command file:
+
++---
+$ jasperstarter pr myreport -f view @db.conf
++---
+
+  <<Attention! The command file should not contain any empty lines and just>>
+  <<one linebreak with no spaces at the end of the file!>>
+
+
+* Processing reports
+
+  To process a report you must provide the process command <<pr>> which needs
+  the following options:
+
+    * <<<\<input\>>>> input file (report definition, compiled report or filled report).
+
+    * <<<-f>>> a space separated list of output formats.
+
+        * <<view>> and <<print>> are mutually exclusive thus print is ignored
+          if view is given.
+
+    * <<<-t>>> a datasource type if your report needs one.
+      Defaults to <<none>>.
+
+        * if datasource type is not <<none>> you must specify other options depending
+
+          on the type of the datasource.
+
+  All other options are optional.
+
+  For output <<<-o>>> see section "File Handling".
+
+  <<<\<input\>>>> is now just an argument. The order of options and this
+  argument does not matter but an argument cannot be placed behind an option
+  that takes a vague number of arguments by itself. These options are:
+
+    * <-f> <-a> <-P> <-r>
+
+  So the following statement will <<not>> work:
+
++---
+$ jasperstarter pr -f view myreport.jasper
++---
+
+  But these will:
+
++---
+$ jasperstarter pr -f print pdf -d myreport.jasper
+$ jasperstarter pr -f view -t mysql myreport.jasper -H localhost -u myuser -n mydb
++---
+
+  The easiest way to circumvent any problems regarding arguments is to always
+  place <<<\<input\>>>> at the first position right behind the command as shown in
+  the following examples.
+
+** The minimum non datasource report
+
+  The minimum options needed, to process a report with an empty datasource:
+
++---
+$ jasperstarter pr myreport.jasper -f view
++---
+
+
+** The minimum database report
+
+  The minimum options required to process a report that needs a database
+  connection:
+
++---
+$ jasperstarter pr myreport.jasper -f pdf -t mysql -H localhost -n mydb -u appuser
++---
+
+
+** View, print or export previously filled reports
+
+  You can fill a report at one time and view, print or export it at a later
+  time.
+
+  Just fill one report:
+
++---
+$ jasperstarter pr myreport.jasper -f jrprint -t mysql -H localhost -n mydb -u appuser
++---
+
+  View a previously filled report:
+
++---
+$ jasperstarter pr myreport.jrprint -f view
++---
+
+
+** Reports with a CSV datasource
+
+  The CSV file charset defaults to UTF-8. Other common used charsets are
+  cp1252 (Windows), ISO-8859-1 or ISO-8859-15 (Linux). You can specify the csv
+  file charset with the <<--csv-charset>> parameter.
+
+  Records are usually delimited by a newline but this is not a must. The record
+  delimiter defaults to the system line separator which is different depending
+  on your operating system.
+  If you use CSV files from other systems you must provide the correct line
+  ending with the <<--csv-record-del>> parameter:
+
+   * Windows: <<\r\n>>
+
+   * Linux/Mac: <<\n>>
+
+  Fields can be delimited by any char and optionally be enclosed by quotation
+  marks. The field delimiter defaults to <<,>>
+
+  A simple example:
+
++---
+$ jasperstarter pr csv.jrxml -f view -t csv --data-file data.csv --csv-first-row
++---
+
+  A more complex example:
+
++---
+$ jasperstarter pr csv.jrxml -f view -t csv --data-file data.csv \
+--csv-columns Name,Phone --csv-record-del="\n" --csv-field-del="|" \
+--csv-charset=cp1252
++---
+
+
+** Reports with runtime parameters
+
+  Report parameters can consist of several types (classes). JasperStarter can
+  generally handle all classes that have a constructor of type String.
+  Additionally JasperStarter has special handlers for some classes that have no
+  constructor of type String or otherwiese need special handling. These are:
+
+   * date, image, locale
+
+  Multiple parameters can be separated by spaces. A parameter has the following
+  form:
+
+   * \<<<name>>\><<=>>\<<<value>>\>
+
+  Replace <<name>> with the parameter name in your report. Parameter names are
+  <<case sensitive>> !
+
+  The parameter type <date> accepts a date in ISO format in the form: <<YYYY-MM-DD>>
+
+  The parameter type <locale> may consist just of the two-letter ISO-639
+  language code or a combination of the two-letter ISO-639 language code and the
+  two-letter ISO-3166 country code connected by an underscore.
+  For example <de> or <de_DE>.
+
++---
+$ jasperstarter pr report.jasper -t mysql -u myuser -f pdf -H myhost -n mydb \
+-o report -p secret -P CustomerNo=10 StartFrom=2012-10-01
++---
+
+
+*** The image parameter
+
+  A simple way of customizing a report is to provide a logo or background image
+  as parameter. In the following example we use <background> as parameter name
+  for the image:
+
+   * Create a parameter in your report and change it's properties:
+
+      * <<Name>> = <background>
+
+      * <<Parameter Class>> = <java.awt.Image>
+
+   * Place an image in your report and change it's properties:
+
+      * <<Image Expression>> = <$P\{background\}>
+
+      * <<Expression Class>> = <java.awt.Image>
+
+   * compile your report
+
+  Now you can process your report with JasperStarter:
+
++---
+$ jasperstarter pr report.jasper -t mysql -u myuser -f pdf -H myhost -n mydb \
+-o report -p secret -P background=/tmp/mybackgroundimage.jpg
++---
+
+
+*** Quoting parameters that contain spaces
+
+  Particularly windows users may need to work with spaces in file names.
+  There are two ways you can do that. Just quote the value:
+
++---
+c:\jasperstarter pr report.jasper -t mysql -u myuser -f pdf -H myhost -n mydb \
+-o report -p secret -P background="C:\Temp Files\My Image.jpg" otherValue=1
++---
+
+  or quote the whole parameter:
+
++---
+c:\jasperstarter pr report.jasper -t mysql -u myuser -f pdf -H myhost -n mydb \
+-o report -p secret -P "background=C:\Temp Files\My Image.jpg" otherValue=1
++---
+
+
+*** Prompt for parameters
+
+  JasperStarter can ask for parameter input with option <<-a>>.
+
+  Every parameter defined in the report can be displayed but only those
+  are supported for input, that have a type (class) with a constructor that
+  takes one string as an argument or there is a special handler implemented for
+  it.
+
+  It is possible to filter the displayed parameters with the following optional
+  arguments:
+
+   * <<a>> - all parameters (including system parameters)
+
+   * <<ae>> - all empty parameters (parameters for which no value is provided
+              on command line)
+
+   * <<p>> - all user defined parameters marked for prompting (this is the
+             default if <<-a>> has no argument)
+
+   * <<pe>> - all empty user defined parameters marked for prompting
+
+   * <<u>> - all user defined parameters
+
+   * <<ue>> - all empty user defined parameters
+
+  In the following examples we assume a non database report which has two
+  parameters:
+
+   * MyDate (java.util.Date)
+
+   * MyText (java.lang.String)
+
+  The user will be prompted for the two parameters:
+
++---
+$ jasperstarter pr myreport.jasper -f view -a
++---
+
+  The user will be prompted for the two parameters. The <MyDate> parameter
+  is already filled but the user can change it:
+
++---
+$ jasperstarter pr myreport.jasper -f view -P MyDate=2013-01-30 -a
++---
+
+  The user will be prompted only for the empty <MyText> parameter. The <MyDate>
+  parameter is already filled and not displayed:
+
++---
+$ jasperstarter pr myreport.jasper -f view -P MyDate=2013-01-30 -a pe
++---
+
+
+** Reports with resources
+
+  Reports can use several resources like i18n resource bundles, icons, images or (compiled) subreports.
+
+  If a resource exists in the same directory as the report file just specify
+  <<-r>> without any arguments:
+
++---
+$ jasperstarter pr myreport.jasper -f view -r
++---
+
+  If the resource is located in another directory or in a jar file the path can
+  be given as an argument:
+
++---
+$ jasperstarter pr myreport.jasper -f view -r myresources/
++---
+
+  or
+
++---
+$ jasperstarter pr myreport.jasper -f view -r myresources.jar
++---
+
+
+** Exporting Reports using Metadata
+
+  The standard export to csv (xls, xlsx, ods) depends on layout and
+  produces unexpected results most time. The solution to this is, at
+  least for csv and xls, using metadata which clearly define which
+  data is exported and how.
+  This metadata must be added to the report definition <jrxml>.
+
+  See
+  {{http://jasperreports.sourceforge.net/sample.reference/jasper/#csvmetadataexport}}
+  and
+  {{http://jasperreports.sourceforge.net/sample.reference/jasper/#xlsmetadataexport}}
+
+  Additionaly use the format <-f csvMeta> instead of <-f csv> or <-f
+  xlsMeta> instead of <-f xls> with JasperStarter. Have a look at the
+  example section at the end of this file.
+
+
+** Reports with Subreports
+
+  Using subreports with JasperStarter can be a bit tricky and has some limitations.
+  You have to use the datasource form the main report in the subreport which can be referenced
+  with <<<$P\{REPORT_DATA_SOURCE\}>>>. It could be also a good idea to clone the datasource.
+  
+  The subreport must be compiled before you can use it. It must be referenced with file ending <<<.jasper>>>.
+  The path to the subreport must be provided as a resource with option <<<-r>>>.
+  
+--- 
+<subreportExpression><![CDATA["mysubreport.jasper"]]></subreportExpression>
+---  
+
+  This is a complete example subreport element using clone and a relative path to the subreport.
+  Keep in mind to replace the data source class with the one you are using.
+  
+---  
+<subreport isUsingCache="false">
+<reportElement x="0" y="0" width="500" height="800"/>
+<dataSourceExpression><![CDATA[((net.sf.jasperreports.engine.data.JRBeanCollectionDataSource) $P{REPORT_DATA_SOURCE}).cloneDataSource()]]></dataSourceExpression>
+<subreportExpression><![CDATA["subdir/mysubreport.jasper"]]></subreportExpression>
+</subreport>  
+---  
+
+  A user of JasperStarter has written a nice tutorial for a subreport with XML datasource here:
+  {{http://nblock.org/2015/06/02/processing-jasper-subreports-with-jasperstarter/}}
+  
+  The example report from this tutorial is included in the JasperStarter example directory. See {{main.jrxml_header.jrxml_details.jrxml}}
+
+** Reports using extensions or custom components
+
+  Not all extensions a delivered with JasperStarter by default. So if you want to use an extension you may have to put it's jar files
+  into the classpath. This is an easy task. Just put the jar files into the jdbc directory under the JasperStarter installation directory. 
+
+*** Reports with chart customizers
+
+  The needed libraries are now distributed with JasperStarter.
+
+*** Reports with custom fonts
+
+  Jaspersoft Studio has an option to create a jar file of your fonts.
+  Just put this jar file into the jdbc folder of JasperStarter.
+
+
+* File Handling
+
+  If the input file (option <<<-i>>> ) is not found, <.jasper> is added to the
+  filename first, if the file is still not found <.jrxml> is added to the
+  filename. So you can omit the file extension.
+
+  If the <.jrxml> file is used, it will be compiled in memory and used for
+  further processing except you provide option <<<-w>>> which causes the
+  compiled report to be written to the <<input>> directory.
+
+  A <.jrprint> file can be used as input but must specified with full filename.
+
+  If the output file or directory ( option <<<-o>>> ) is omitted, parent of the
+  input file is used as output directory and the basename of the input file is
+  used for as output filename:
+
++---
+(...) myreports/report1 -f pdf odt
++---
+
+  or
+
++---
+(...) myreports/report1.jasper -f pdf odt
++---
+
+  or
+
++---
+(...) myreports/report1.jrxml -f pdf odt
++---
+
+  results in:
+
++---
+myreports/report1.odt
+myreports/report1.pdf
++---
+
+  If <output> is an existing directory, basename of <input> is used as filename
+  in that directory:
+
++---
+(...) myreports/report1.jasper -f pdf odt -o month01/
++---
+
+  results in:
+
++---
+month01/report1.odt
+month01/report1.pdf
++---
+
+  If <output> is NOT an existing directory, its name is used as basename for
+  filenames:
+
++---
+(...) myreports/report1.jasper -f pdf odt -o month01/journal.xyz
++---
+
+  results in:
+
++---
+month01/journal.xyz.odt
+month01/journal.xyz.pdf
++---
+
+
+* Examples
+
+  There are several example reports provided whithin the JasperStarter
+  distribution. They can be found in the <examples> folder.
+
+  For the following examples cd into the <examples> folder and execute
+  the commands as described.
+
+  List of example files:
+
++---
+Blank_A4_1.jasper
+Blank_A4_1.jrxml
+CancelAck.jrxml
+CancelAck.xml
+charactersetTest.jasper
+charactersetTest.jrxml
+charactersetTestWithStudioBuiltinFunctions.jrxml
+contacts.json
+contacts.xml
+csv.jrxml
+csvExampleHeaders.csv
+csvMeta.jrxml
+details.jasper
+details.jrxml
+header.jasper
+header.jrxml
+i18n-bundle.properties
+i18n-bundle_de.properties
+i18n-bundle_ru.properties
+json.jrxml
+jsonql.jrxml
+main.jrxml
+noDB-i18n.jrxml
+noDB-params.jrxml
++---
+
+** charactersetTest.jrxml
+
+  A simple report whithout any datasource (just static text) showing
+  different character sets. To view this report type:
+
++---
+$ jasperstarter pr charactersetTest.jrxml -f view
++---
+
+  To get a pdf from this report type:
+
++---
+$ jasperstarter pr charactersetTest.jrxml -f pdf
++---
+
+  Viewing the pdf you will miss the foreign characters as long as you
+  did not provide the Arial font as a resouce.
+  See {{{./unicode-pdf-export.html}Unicode PDF export}}
+
+
+** csv.jrxml
+
+  To view the report type:
+
++---
+$ jasperstarter pr csv.jrxml -f view -t csv --data-file csvExampleHeaders.csv --csv-first-row --csv-field-del "|"
++---
+
+  To export the report to csv type:
+
++---
+$ jasperstarter pr csv.jrxml -f csv -t csv --data-file csvExampleHeaders.csv --csv-first-row --csv-field-del "|" --out-field-del "|"
++---
+
+  To export the report to xls type:
+
++---
+$ jasperstarter pr csv.jrxml -f xsl -t csv --data-file csvExampleHeaders.csv --csv-first-row --csv-field-del "|"
++---
+
+  The results are probably not what you expect. The csv data depends on the
+  layout of the report and may be not row by row. See <csv.csv>. The
+  xls export tries to mimic the print layout which is not useful if
+  you want to post process the data in Excel.
+
+
+** csvMeta.jrxml
+
+  This is an example report for exporting csv or xls with the help of
+  metadata. Don't get confused by the fact that the report uses a csv
+  file as datasource. The output of the export should result in a file
+  named csvMeta.csv or csvMeta.xls depending on <-f>.
+
+  To just view the report type:
+
++---
+$ jasperstarter pr csvMeta.jrxml -f view -t csv --data-file csvExampleHeaders.csv --csv-first-row --csv-field-del "|"
++---
+
+  To make the csv metadata export type:
+
++---
+$ jasperstarter pr csvMeta.jrxml -f csvMeta -t csv --data-file csvExampleHeaders.csv --csv-first-row --csv-field-del "|" --out-field-del "|"
++---
+
+  The input and output files should only differ in line ending depending
+  on your operating system.
+
++---
+$ diff -yW140 --ignore-all-space csvExampleHeaders.csv csvMeta.csv
++---
+
+  To make the xls metadata export type:
+
++---
+$ jasperstarter pr csvMeta.jrxml -f xlsMeta -t csv --data-file csvExampleHeaders.csv --csv-first-row --csv-field-del "|"
++---
+
+  To have an idea on how to add metadata to your report just take a
+  look on <csv.jrxml> and <csvMeta.jrxml>. They mainly differ in the
+  added metadata, the order of the fields and a fixed string.
+  
+
+** CancelAck.jrxml
+
+  This is a report with a xml datasource. To view it type:
+
++---
+$ jasperstarter pr CancelAck.jrxml -f view -t xml --xml-xpath /CancelResponse/CancelResult/ID --data-file CancelAck.xml
++---
+
+
+** json.jrxml
+
+  This is a report with a json datasource. To view it type:
+
++---
+$ jasperstarter pr json.jrxml -f view -t json --json-query contacts.person --data-file contacts.json
++---
+
+
+** jsonql.jrxml
+
+  This is a report with a jsonql datasource. To view it type:
+
++---
+$ jasperstarter pr jsonql.jrxml -f view -t jsonql --jsonql-query contacts.person --data-file contacts.json
++---
+
+
+** noDB-i18n.jrxml
+
+  This is a localized report. To start with the defaults just type:
+
++---
+$ jasperstarter pr noDB-i18n.jrxml -f view
++---
+
+  To start explicit with german localisation you have three
+  options. The first and the second option change the locale of the
+  user interface too:
+
+  Change the locale of the environment (Unix)
+
++---
+$ LANG=de_DE.UTF-8 jasperstarter pr noDB-i18n.jrxml -f view
++---
+
+  Provide the locale parameter:
+
++---
+$ jasperstarter --locale de_DE pr noDB-i18n.jrxml -f view
++---
+
+  Provide the build in report parameter <REPORT_LOCALE>. This changes
+  only the locale inside the report but the UI remains in the default
+  locale (your systems locale):
+
++---
+$ jasperstarter pr noDB-i18n.jrxml -f view -P REPORT_LOCALE=de_DE
++---
+
+  Same with russian localisation:
+
++---
+$ jasperstarter pr noDB-i18n.jrxml -f view -P REPORT_LOCALE=ru
++---
+
+
+** noDB-params.jrxml
+
+  This report accepts parameters. If you don't provide a parameter the
+  report can be shown but the values are empty:
+
++---
+$ jasperstarter pr noDB-params.jrxml -f view
++---
+
+  To get a list of possible parameters type:
+
++---
+$ jasperstarter lpa noDB-params.jrxml
++---
+
+  Let JasperStarter ask you for the Parameters:
+
++---
+$ jasperstarter pr noDB-params.jrxml -f view -a
++---
+
+  Provide one or more parameters on command line (Parameter names are
+  case sensitive):
+
++---
+$ jasperstarter pr noDB-params.jrxml -f view -P myString="My first Parameter" myInt=5
++---
+
+  Provide a parameter on command line as a default but ask the user
+  for all parameters:
+
++---
+$ jasperstarter pr noDB-params.jrxml -f view -P myString="My first Parameter" -a
++---
+
+  Provide a parameter on the command line and ask the user only for
+  the remaining empty ones:
+
++---
+$ jasperstarter pr noDB-params.jrxml -f view -P myString="My first Parameter" -a pe
++---
+
+
+** main.jrxml, header.jrxml, details.jrxml
+
+  The main report references two subreports. The subreports must be compiled, the main report not:
+  
++---
+$ jasperstarter cp header.jrxml
+$ jasperstarter cp details.jrxml
+$ jasperstarter pr main.jrxml -f view -t xml --xml-xpath=/ --data-file contacts.xml -r .
++---
+  
+  See {{http://nblock.org/2015/06/02/processing-jasper-subreports-with-jasperstarter/}}

@@ -1,0 +1,11 @@
+*~
+/target
+/jdbc/*.jar
+nb*.xml
+/src/site/markdown/index.md
+.metadata
+.classpath
+.project
+.settings
+.idea
+/misc
